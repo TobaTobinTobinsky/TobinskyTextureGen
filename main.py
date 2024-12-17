@@ -6,7 +6,7 @@
 #              hasta 8192px.
 #              También cuenta con controles para manejar cada uno de los mapas.
 #
-# Author:      Mauricio José Tobares
+# Author:      Mauricio José Tobares ♥
 #
 # Created:     15/12/2024
 # Copyright:   (c) Mauricio 2024
