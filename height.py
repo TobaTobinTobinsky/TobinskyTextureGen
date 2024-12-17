@@ -1,11 +1,11 @@
 # ----------------------------------------------------------------------------
 #  File:        height.py
 #  Module:      Height
-#  Description: MÛdulo para generar el mapa de altura.
+#  Description: M√≥dulo para generar el mapa de altura.
 #
-#  Author:      Mauricio JosÈ Tobares
+#  Author:      Mauricio Jos√© Tobares
 #  Created:     15/12/2024
-#  Copyright:   (c) 2024 Mauricio JosÈ Tobares
+#  Copyright:   (c) 2024 Mauricio Jos√© Tobares
 #  License:     MIT License
 # ----------------------------------------------------------------------------
 
@@ -27,12 +27,11 @@ def generate_height_map(diffuse_image: Image.Image, height_percentage: float) ->
     """
     # Convierte la imagen diffuse a escala de grises
     height_map = diffuse_image.convert('L')
-    # Aplica autocontraste para mejorar el rango din·mico
+    # Aplica autocontraste para mejorar el rango din√°mico
     height_map = ImageOps.autocontrast(height_map)
 
     # Ajustar intensidad con un slider
     enhancer = ImageEnhance.Contrast(height_map)
-    height_map = enhancer.enhance(height_percentage * 0.1) # Se multiplica el porcentaje por un valor para conseguir m·s contraste
+    height_map = enhancer.enhance(height_percentage * 0.1) # Se multiplica el porcentaje por un valor para conseguir m√°s contraste
 
     return height_map
-

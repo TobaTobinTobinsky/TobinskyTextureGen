@@ -1,11 +1,11 @@
 # ----------------------------------------------------------------------------
 #  File:        smoothness.py
 #  Module:      Smoothness
-#  Description: MÛdulo para generar el mapa de suavidad.
+#  Description: M√≥dulo para generar el mapa de suavidad.
 #
-#  Author:      Mauricio JosÈ Tobares
+#  Author:      Mauricio Jos√© Tobares
 #  Created:     15/12/2024
-#  Copyright:   (c) 2024 Mauricio JosÈ Tobares
+#  Copyright:   (c) 2024 Mauricio Jos√© Tobares
 #  License:     MIT License
 # ----------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ def generate_smoothness_map(diffuse_image: Image.Image, smoothness_intensity: fl
     Genera un mapa de suavidad donde todo es blanco (puede ajustarse) en formato RGB.
 
     Este mapa se utiliza para indicar la suavidad de la superficie,
-    influyendo en cÛmo se reflejan las luces. Por defecto, genera una imagen
+    influyendo en c√≥mo se reflejan las luces. Por defecto, genera una imagen
     completamente blanca que puede ser ajustada en intensidad.
 
     Args:
@@ -32,6 +32,6 @@ def generate_smoothness_map(diffuse_image: Image.Image, smoothness_intensity: fl
 
     # Ajustar intensidad usando brillo
     enhancer = ImageEnhance.Brightness(smoothness_map)
-    smoothness_map = enhancer.enhance(smoothness_intensity * 0.01)  # Se multiplica el porcentaje por un valor para conseguir m·s brillo
+    smoothness_map = enhancer.enhance(smoothness_intensity * 0.01)  # Se multiplica el porcentaje por un valor para conseguir m√°s brillo
 
     return smoothness_map
