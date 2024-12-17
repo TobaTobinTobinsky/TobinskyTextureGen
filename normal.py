@@ -1,18 +1,30 @@
-#-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
+# ----------------------------------------------------------------------------
+#  File:        normal.py
+#  Module:      Normal
+#  Description: Módulo para generar el mapa normal.
 #
-# Author:      Mauricio
-#
-# Created:     15/12/2024
-# Copyright:   (c) Mauricio 2024
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
+#  Author:      Mauricio José Tobares
+#  Created:     15/12/2024
+#  Copyright:   (c) 2024 Mauricio José Tobares
+#  License:     MIT License
+# ----------------------------------------------------------------------------
 
 from PIL import Image, ImageEnhance
 
-def generate_normal_map(height_map, normal_intensity):
-    """Genera un mapa normal basado en los gradientes del mapa de altura (implementación manual)."""
+def generate_normal_map(height_map: Image.Image, normal_intensity: float) -> Image.Image:
+    """
+    Genera un mapa normal basado en los gradientes del mapa de altura.
+
+    Este mapa normal se calcula manualmente a partir de las diferencias de altura
+    en el mapa de altura dado. Los valores de los normales se convierten al rango RGB (0-255).
+
+    Args:
+        height_map (PIL.Image.Image): El mapa de altura de entrada.
+        normal_intensity (float): La intensidad del contraste a aplicar al mapa normal (0-100).
+
+    Returns:
+        PIL.Image.Image: El mapa normal generado.
+    """
     width, height = height_map.size
 
     # Crear una imagen en blanco para almacenar el resultado
@@ -60,6 +72,6 @@ def generate_normal_map(height_map, normal_intensity):
 
     # Ajustar intensidad usando contraste
     enhancer = ImageEnhance.Contrast(normal_map)
-    normal_map = enhancer.enhance(normal_intensity)
+    normal_map = enhancer.enhance(normal_intensity * 0.1) # Se multiplica el porcentaje por un valor para conseguir más contraste
 
     return normal_map
