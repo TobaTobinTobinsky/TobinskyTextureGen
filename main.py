@@ -1,20 +1,16 @@
-#-------------------------------------------------------------------------------
-# Name:        main.py
-# Purpose:     Esta herramienta sirve para generar mapas de texturas en base a
-#              un "Diffuse" brindado por el usuario.
-#              La herramienta tiene calidad de imágen estandarizado desde 32px
-#              hasta 8192px.
-#              También cuenta con controles para manejar cada uno de los mapas.
+# ----------------------------------------------------------------------------
+#  File:        main.py
+#  Module:      Main
+#  Description: Interfaz principal de la aplicación generadora de texturas.
 #
-# Author:      Mauricio José Tobares ♥
-#
-# Created:     15/12/2024
-# Copyright:   (c) Mauricio 2024
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
+#  Author:      Mauricio José Tobares
+#  Created:     15/12/2024
+#  Copyright:   (c) 2024 Mauricio José Tobares
+#  License:     MIT License
+# ----------------------------------------------------------------------------
 
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import filedialog, ttk, messagebox
 from PIL import Image, ImageTk
 import os
 import height
@@ -27,7 +23,19 @@ import ao
 import composite  # Importar el módulo composite
 
 class TextureGeneratorApp:
+    """
+    Clase principal para la aplicación generadora de texturas.
+
+    Esta clase gestiona la interfaz gráfica, la carga de imágenes, la generación
+    de mapas de texturas y la previsualización de la composición final.
+    """
     def __init__(self, root):
+        """
+        Inicializa la aplicación.
+
+        Args:
+            root (tk.Tk): La ventana principal de la aplicación.
+        """
         self.root = root
         self.root.title("Generador de Texturas")
 
@@ -173,30 +181,52 @@ class TextureGeneratorApp:
         self.create_image_grid()
 
     def create_slider_control(self, frame, label_text, slider_var, slider_attribute, minus_button_attribute, plus_button_attribute):
-        # Crea un frame para el slider
-        slider_frame = tk.Frame(frame)
-        slider_frame.pack(pady=5)
+         """
+         Crea un control de slider con botones + y - para ajustar un valor.
 
-        # Botón -
-        minus_button_attribute = tk.Button(slider_frame, text="-", width=3, command=lambda: self.adjust_slider(slider_attribute, -10))
-        minus_button_attribute.pack(side="left")
+         Args:
+            frame (tk.Frame): El frame contenedor para el slider y los botones.
+            label_text (str): El texto de la etiqueta del slider.
+            slider_var (tk.IntVar): La variable asociada al slider.
+            slider_attribute (tk.Scale): El widget Scale (slider).
+            minus_button_attribute (tk.Button): El botón para disminuir el valor.
+            plus_button_attribute (tk.Button): El botón para aumentar el valor.
+         """
+         # Crea un frame para el slider
+         slider_frame = tk.Frame(frame)
+         slider_frame.pack(pady=5)
 
-        # Slider
-        slider_attribute = tk.Scale(slider_frame, from_=0, to=100, orient="horizontal", label=label_text,
-                                        variable=slider_var, command=self.on_slider_change)
-        slider_attribute.pack(side="left")
+         # Botón -
+         minus_button_attribute = tk.Button(slider_frame, text="-", width=3, command=lambda: self.adjust_slider(slider_attribute, -10))
+         minus_button_attribute.pack(side="left")
 
-        # Botón +
-        plus_button_attribute = tk.Button(slider_frame, text="+", width=3, command=lambda: self.adjust_slider(slider_attribute, 10))
-        plus_button_attribute.pack(side="left")
+         # Slider
+         slider_attribute = tk.Scale(slider_frame, from_=0, to=100, orient="horizontal", label=label_text,
+                                     variable=slider_var, command=self.on_slider_change)
+         slider_attribute.pack(side="left")
+
+         # Botón +
+         plus_button_attribute = tk.Button(slider_frame, text="+", width=3, command=lambda: self.adjust_slider(slider_attribute, 10))
+         plus_button_attribute.pack(side="left")
+
 
     def create_reset_button(self, frame, texture_type):
+        """
+        Crea un botón de reset para un tipo de textura específico.
+
+        Args:
+            frame (tk.Frame): El frame contenedor para el botón.
+            texture_type (str): El tipo de textura para el que se resetea el valor del slider
+        """
         # Botón reset especifico
         reset_button = tk.Button(frame, text="RESET", command=lambda type=texture_type: self.reset_sliders(type))
         reset_button.pack(pady=10)
 
 
     def create_image_grid(self):
+        """
+        Crea la grilla para mostrar las imágenes de cada mapa de texturas.
+        """
         texture_names = ['diffuse', 'height', 'normal', 'metallic', 'smoothness', 'edge', 'ao']
         for tab_name in texture_names:
            row, col = 0, 0
@@ -222,14 +252,22 @@ class TextureGeneratorApp:
                 break
 
     def disable_other_tabs(self):
-         for tab_name in  ['height', 'normal', 'metallic', 'smoothness', 'edge', 'ao']:
+        """Deshabilita todas las pestañas excepto la pestaña 'diffuse'."""
+        for tab_name in  ['height', 'normal', 'metallic', 'smoothness', 'edge', 'ao']:
              self.notebook.tab(self.tab_frames[tab_name], state="disabled")
 
     def enable_other_tabs(self):
-         for tab_name in  ['height', 'normal', 'metallic', 'smoothness', 'edge', 'ao']:
+        """Habilita todas las pestañas después de cargar la imagen 'diffuse'."""
+        for tab_name in  ['height', 'normal', 'metallic', 'smoothness', 'edge', 'ao']:
              self.notebook.tab(self.tab_frames[tab_name], state="normal")
 
     def load_diffuse(self):
+        """
+        Carga una imagen diffuse desde un archivo y la procesa.
+
+        Abre un diálogo para que el usuario seleccione un archivo de imagen, lo carga,
+        redimensiona y habilita las otras pestañas de la interfaz.
+        """
         file_path = filedialog.askopenfilename(filetypes=[("Imágenes", "*.jpg *.jpeg *.png")])
         if file_path:
             try:
@@ -250,9 +288,16 @@ class TextureGeneratorApp:
                                         command=lambda type='diffuse': self.save_image(type))
                    self.save_diffuse_button.pack(pady=10)
             except Exception as e:
-                tk.messagebox.showerror("Error", f"Error al cargar la imagen: {e}")
+                messagebox.showerror("Error", f"Error al cargar la imagen: {e}")
 
     def display_image(self, label, image):
+        """
+        Muestra una imagen en un label.
+
+        Args:
+            label (tk.Label): El label donde se mostrará la imagen.
+            image (PIL.Image.Image): La imagen a mostrar.
+        """
         image_resized = image.resize((200, 200)) # Redimensionar para display
         photo = ImageTk.PhotoImage(image_resized)
         label.config(image=photo)
@@ -260,7 +305,12 @@ class TextureGeneratorApp:
 
 
     def set_resolution(self, resolution):
+        """
+        Establece la resolución objetivo para los mapas de texturas.
 
+        Args:
+            resolution (int): La resolución objetivo en píxeles.
+        """
         if self.selected_res_button:
            self.selected_res_button.config(relief=tk.RAISED, bg="SystemButtonFace")  # Desactiva el resaltado y vuelve a su color por defecto
 
@@ -272,9 +322,14 @@ class TextureGeneratorApp:
             self.generate_textures()
 
     def open_composite_window(self):
+        """
+        Abre una ventana para visualizar la composición de todos los mapas de texturas.
 
+        Muestra todos los mapas combinados en una nueva ventana, con opción de ajustar la iluminación
+        y guardar la composición final.
+        """
         if not self.resized_diffuse_image:
-            tk.messagebox.showwarning("Advertencia", "Por favor, carga una imagen Diffuse primero.")
+            messagebox.showwarning("Advertencia", "Por favor, carga una imagen Diffuse primero.")
             return
 
         target_res = self.target_resolution.get()
@@ -318,37 +373,58 @@ class TextureGeneratorApp:
 
 
     def generate_textures(self):
-        if not self.resized_diffuse_image:
+         """
+         Genera todos los mapas de texturas basados en la imagen diffuse cargada.
+
+         Utiliza los valores de los sliders para ajustar los parámetros de cada mapa
+         y muestra las imágenes en la interfaz gráfica.
+         """
+         if not self.resized_diffuse_image:
 
             return
 
-        # Obtener la resolución objetivo
-        target_res = self.target_resolution.get()
+         # Obtener la resolución objetivo
+         target_res = self.target_resolution.get()
 
-        # Generar todos los mapas de texturas
-        height_value = self.height_percentage.get() / 100.0
-        normal_value = self.normal_intensity.get() / 100.0
-        metallic_value = self.metallic_intensity.get() / 100.0
-        smoothness_value = self.smoothness_intensity.get() / 100.0
-        edge_value = self.edge_intensity.get() / 100.0
-        ao_value = self.ao_intensity.get() / 100.0
+         # Generar todos los mapas de texturas
+         height_value = self.height_percentage.get() / 100.0
+         normal_value = self.normal_intensity.get() / 100.0
+         metallic_value = self.metallic_intensity.get() / 100.0
+         smoothness_value = self.smoothness_intensity.get() / 100.0
+         edge_value = self.edge_intensity.get() / 100.0
+         ao_value = self.ao_intensity.get() / 100.0
 
 
-        self.generated_images['diffuse'] = diffuse.process_diffuse(self.resized_diffuse_image) # No es necesaria, pero se añade por consistencia
-        self.generated_images['height'] = height.generate_height_map(self.resized_diffuse_image, height_value)
-        self.generated_images['normal'] = normal.generate_normal_map(self.generated_images['height'], normal_value)
-        self.generated_images['metallic'] = metallic.generate_metallic_map(self.resized_diffuse_image, metallic_value)
-        self.generated_images['smoothness'] = smoothness.generate_smoothness_map(self.resized_diffuse_image, smoothness_value)
-        self.generated_images['edge'] = edge.generate_edge_map(self.resized_diffuse_image, self.generated_images['smoothness'], edge_value)
-        self.generated_images['ao'] = ao.generate_ao_map(self.resized_diffuse_image, ao_value)
+         self.generated_images['diffuse'] = diffuse.process_diffuse(self.resized_diffuse_image) # No es necesaria, pero se añade por consistencia
+         self.generated_images['height'] = height.generate_height_map(self.resized_diffuse_image, height_value)
+         self.generated_images['normal'] = normal.generate_normal_map(self.generated_images['height'], normal_value)
+         self.generated_images['metallic'] = metallic.generate_metallic_map(self.resized_diffuse_image, metallic_value)
+         self.generated_images['smoothness'] = smoothness.generate_smoothness_map(self.resized_diffuse_image, smoothness_value)
+         self.generated_images['edge'] = edge.generate_edge_map(self.resized_diffuse_image, self.generated_images['smoothness'], edge_value)
+         self.generated_images['ao'] = ao.generate_ao_map(self.resized_diffuse_image, ao_value)
 
-        self.display_results()
+         self.display_results()
 
     def on_slider_change(self, value):
+        """
+        Callback para el evento de cambio en los sliders.
+
+        Regenera las texturas cuando se cambia el valor de un slider.
+
+        Args:
+            value (int/float): El nuevo valor del slider.
+        """
         if self.resized_diffuse_image:
             self.generate_textures()
 
     def adjust_slider(self, slider, amount):
+        """
+         Ajusta el valor de un slider dado un valor.
+
+         Args:
+            slider (tk.Scale): El slider a ajustar.
+            amount (int): El valor a sumar o restar al slider.
+        """
         current_value = slider.get()
         new_value = max(0, min(100, current_value + amount))
         slider.set(new_value)
@@ -357,6 +433,12 @@ class TextureGeneratorApp:
 
 
     def reset_sliders(self, texture_type):
+        """
+        Resetea los sliders de intensidad a su valor predeterminado.
+
+        Args:
+            texture_type (str): Tipo de textura para resetear el valor del slider.
+        """
         if texture_type == 'height':
             self.height_percentage.set(50)
         elif texture_type == 'normal':
@@ -374,9 +456,13 @@ class TextureGeneratorApp:
             self.generate_textures()
 
     def display_results(self):
-         for texture_type, texture_image in self.generated_images.items():
-            label, _ = self.labels_and_buttons[texture_type]
+        """
+        Muestra las imágenes de los mapas de texturas en la interfaz.
 
+        Redimensiona las imágenes para que se ajusten a los labels y las muestra.
+        """
+        for texture_type, texture_image in self.generated_images.items():
+            label, _ = self.labels_and_buttons[texture_type]
 
             # Redimensionar la imagen al máximo disponible manteniendo la proporción
 
@@ -397,33 +483,60 @@ class TextureGeneratorApp:
                    print(f"Error al redimensionar {texture_type}, width y/o height = 0")
 
     def update_composite_window(self, label, diffuse_image, height_map, normal_map, metallic_map, smoothness_map, edge_map, ao_map, target_res, light_value):
-       composite_image = composite.create_composite_image(diffuse_image, height_map, normal_map, metallic_map, smoothness_map, edge_map, ao_map, target_res, float(light_value))  # Pasa la resolución seleccionada y la intensidad de la luz
+        """
+         Actualiza la imagen de la ventana de composición al modificar el slider de iluminación.
 
-       if composite_image:
+         Args:
+            label (tk.Label): El label de la ventana donde se muestra la composición.
+            diffuse_image (PIL.Image.Image): Imagen Diffuse.
+            height_map (PIL.Image.Image): Mapa de altura.
+            normal_map (PIL.Image.Image): Mapa normal.
+            metallic_map (PIL.Image.Image): Mapa metálico.
+            smoothness_map (PIL.Image.Image): Mapa de suavidad.
+            edge_map (PIL.Image.Image): Mapa de bordes.
+            ao_map (PIL.Image.Image): Mapa de oclusión ambiental.
+            target_res (int): Resolución de destino para las imagenes
+            light_value (float): El valor de intensidad de la luz.
+        """
+        composite_image = composite.create_composite_image(diffuse_image, height_map, normal_map, metallic_map, smoothness_map, edge_map, ao_map, target_res, float(light_value))  # Pasa la resolución seleccionada y la intensidad de la luz
+
+        if composite_image:
            self.display_image(label, composite_image)
 
     def save_composite_image(self, composite_image):
+        """
+        Guarda la imagen compuesta final en un archivo.
+
+        Args:
+            composite_image (PIL.Image.Image): La imagen compuesta a guardar.
+        """
         file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("Imágenes PNG", "*.png")])
         if file_path:
            try:
                composite_image.save(file_path)
-               tk.messagebox.showinfo("Éxito", "Imagen compuesta guardada exitosamente.")
+               messagebox.showinfo("Éxito", "Imagen compuesta guardada exitosamente.")
            except Exception as e:
-               tk.messagebox.showerror("Error", f"Error al guardar la imagen compuesta: {e}")
+               messagebox.showerror("Error", f"Error al guardar la imagen compuesta: {e}")
 
 
     def save_image(self, texture_type):
+       """
+       Guarda una imagen de un mapa de textura específico en un archivo.
 
+       Args:
+            texture_type (str): El tipo de mapa de textura a guardar.
+       """
        if texture_type in self.generated_images:
             file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("Imágenes PNG", "*.png")])
             if file_path:
                 try:
                    self.generated_images[texture_type].save(file_path)
-                   tk.messagebox.showinfo("Éxito", f"Imagen {texture_type.capitalize()} guardada exitosamente.")
+                   messagebox.showinfo("Éxito", f"Imagen {texture_type.capitalize()} guardada exitosamente.")
                 except Exception as e:
-                   tk.messagebox.showerror("Error", f"Error al guardar la imagen {texture_type.capitalize()}: {e}")
+                   messagebox.showerror("Error", f"Error al guardar la imagen {texture_type.capitalize()}: {e}")
        else:
-            tk.messagebox.showerror("Error", f"Imagen no encontrada: {texture_type.capitalize()}")
+            messagebox.showerror("Error", f"Imagen no encontrada: {texture_type.capitalize()}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
